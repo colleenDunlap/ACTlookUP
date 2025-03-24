@@ -14,6 +14,7 @@ client = OpenAI(
 )
 # Path to your image
 image_path = "costumes_user_a/IMG_4707.jpg"
+show_theme = "Disney"
 
 # Getting the Base64 string
 base64_image = encode_image(image_path)
@@ -24,7 +25,7 @@ completion = client.chat.completions.create(
         {
             "role": "user",
             "content": [
-                { "type": "text", "text": "what acts could the performer create with this costume for a Disney themed show?" },
+                { "type": "text", "text": "what acts could the performer create with this costume for a " + show_theme + "-themed show?" },
                 {
                     "type": "image_url",
                     "image_url": {
