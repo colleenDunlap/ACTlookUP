@@ -1,17 +1,39 @@
 import re
+import os
+import base64
+from openai import OpenAI
 from youtube_transcript_api import YouTubeTranscriptApi
+# Function to encode the image
+def encode_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode("utf-8")
 
-youtube_url = "https://www.youtube.com/watch?v=Pwh8wcHTL2E"
+client = OpenAI(
+    # This is the default and can be omitted
+    api_key=os.environ.get("OPENAI_API_KEY"),
+)
+# Path to your image
+image_path = "costumes_user_a/IMG_4707.jpg"
 
-# extract video ID with regex
-video_id_regex = r'(?:v=|\/)([0-9A-Za-z_-]{11}).*'
-match = re.search(video_id_regex, youtube_url)
+# Getting the Base64 string
+base64_image = encode_image(image_path)
 
+completion = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                { "type": "text", "text": "what acts could the performer create with this costume for a Disney themed show?" },
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{base64_image}",
+                    },
+                },
+            ],
+        }
+    ],
+)
 
-
-# extract transcript
-transcript = YouTubeTranscriptApi.get_transcript(match.group(1))
-text_list = [transcript[i]['text'] for i in range(len(transcript))]
-transcript_text = '\n'.join(text_list)
-
-print(transcript_text)
+print(completion.choices[0].message.content)
